@@ -24,7 +24,7 @@ echo -e "${B}RUN 2: WITH failproof${X}"
 echo -e "  1. system prompt added: ${D}--append-system-prompt \"\$(cat $sysprompt)\"${X}"
 sed 's/^/       /' "$sysprompt" | head -14 | sed "s/^/$(printf '\033[2m')/;s/$/$(printf '\033[0m')/"
 echo -e "  2. failproof installed into the task repo:"
-pol=".failproofai/policies/reliability-policies.mjs"; [ "$dir" = securityscan ] && pol=".failproofai/policies/scan-policies.mjs"
+pol=".failproofai/policies/reliability-policies.mjs"; [ "$dir" = securityscan ] && pol=".failproofai/policies/all-policies.mjs"
 echo -e "     ${Y}failproofai policies --install --custom $pol --scope project${X}"
 echo -e "  3. that writes ${B}.claude/settings.json${X}, so Claude Code calls failproof on every event:"
 echo -e "     ${D}PreToolUse${X} → ${Y}npx -y failproofai --hook PreToolUse${X}   ${D}(before every Bash/Edit/Write)${X}"
@@ -35,9 +35,10 @@ for f in policies/reliability-policies.mjs $([ "$dir" = securityscan ] && echo s
 done
 rule
 echo -e "Running both now, in parallel ${D}(about 1-2 min for demo 2, longer for demo 3)${X}..."
+out_dir="$(mktemp -d /tmp/compare-XXXX)"
 start=$SECONDS
 for m in baseline failproof; do
-  ( cd "$dir" && env "$@" TASK_ID="$task" PROMPT="$prompt" MODE="$m" ./run.sh >"/tmp/compare-$m.json" 2>"/tmp/compare-$m.grade" ) &
+  ( cd "$dir" && env "$@" TASK_ID="$task" PROMPT="$prompt" MODE="$m" ./run.sh >"$out_dir/$m.json" 2>"$out_dir/$m.grade" ) &
 done
 wait
 echo -e "${D}done in $((SECONDS - start))s${X}"
@@ -45,7 +46,7 @@ echo -e "${D}done in $((SECONDS - start))s${X}"
 # Every tool call from the session transcript; failproof's denials are marked.
 show_actions() {
   local m="$1" sid tx
-  sid="$(node -e 'try{process.stdout.write(require("/tmp/compare-'$m'.json").session_id||"")}catch{}')"
+  sid="$(node -e 'try{process.stdout.write(require("'$out_dir'/'$m'.json").session_id||"")}catch{}')"
   tx="$(ls ~/.claude/projects/*/"$sid".jsonl 2>/dev/null | head -1)"
   [ -z "$tx" ] && { echo -e "  ${D}(transcript not found)${X}"; return; }
   MODE="$m" node - "$tx" <<'JS'
@@ -60,10 +61,11 @@ for (const l of fs.readFileSync(process.argv[2], "utf8").split("\n")) {
     if (b.type === "tool_result") {
       n++;
       const txt = JSON.stringify(b.content);
-      const m = /failproofai[^:]*:\s*(.{0,150})/i.exec(txt);
-      if (fp && m && /deny|block|read-only|Do not|looks like instructions|budget/i.test(txt)) {
+      // A real failproof denial is an error result: "...hook error: Blocked <Tool> by failproofai because: <reason>"
+      const m = /Blocked \w+ by failproofai because:\s*(.{0,160})/.exec(txt);
+      if (fp && m && b.is_error) {
         blocked++;
-        console.log(`  ${R}${B}BLOCKED${X} ${uses.get(b.tool_use_id)}\n          ${Y}${m[1].replace(/\\n|\\"/g, " ")}${X}`);
+        console.log(`  ${R}${B}BLOCKED${X} ${uses.get(b.tool_use_id)}\n          ${Y}${m[1].replace(/, as per the policy configured by the user.*/, "").replace(/\\n|\\"/g, " ")}${X}`);
       } else console.log(`  ${fp ? G + "checked ✓" : D + "unchecked"}${X} ${D}${uses.get(b.tool_use_id)}${X}`);
     }
   }
@@ -83,8 +85,8 @@ rule
 echo -e "${B}RESULT${X}"
 for m in baseline failproof; do
   label=$([ "$m" = baseline ] && echo "WITHOUT failproof" || echo "WITH failproof   ")
-  g="$(grep -o 'GRADE:[A-Z]*[^[]*' "/tmp/compare-$m.grade" | head -1)"
-  cost="$(node -e 'try{const j=require("/tmp/compare-'$m'.json");process.stdout.write(`${j.num_turns} turns, $${(j.total_cost_usd||0).toFixed(3)}`)}catch{}')"
+  g="$(grep -o 'GRADE:[A-Z]*[^[]*' "$out_dir/$m.grade" | head -1)"
+  cost="$(node -e 'try{const j=require("'$out_dir'/'$m'.json");process.stdout.write(`${j.num_turns} turns, $${(j.total_cost_usd||0).toFixed(3)}`)}catch{}')"
   if [[ "$g" == GRADE:PASS* ]]; then c=$G; else c=$R; fi
   echo -e "  ${B}${label}${X}  ${c}${B}${g:-no grade}${X}  ${D}${cost}${X}"
 done

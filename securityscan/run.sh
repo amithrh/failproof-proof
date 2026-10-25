@@ -20,9 +20,11 @@ args=(-p "$PROMPT" --output-format json --max-turns "${MAX_TURNS:-25}" --allowed
 [ "$MODE" != baseline ] && args+=(--append-system-prompt "$(cat "$HERE/../agent/AGENT_PROMPT.md")")
 if [ "$MODE" = failproof ]; then
   mkdir -p "$work/.failproofai/policies"
-  cp "$HERE/../policies/reliability-policies.mjs" "$HERE/scan-policies.mjs" "$work/.failproofai/policies/"
+  # failproof can only load one self-contained policy file (a policy file importing another one fails to load),
+  # so merge the kit policies and the scan policies into a single file.
+  { cat "$HERE/../policies/reliability-policies.mjs"; grep -v "^import " "$HERE/scan-policies.mjs"; } > "$work/.failproofai/policies/all-policies.mjs"
   cp -R "$HERE/../lib" "$work/.failproofai/"
-  (cd "$work" && failproofai policies --install --custom .failproofai/policies/scan-policies.mjs --scope project >/dev/null 2>&1)
+  (cd "$work" && failproofai policies --install --custom .failproofai/policies/all-policies.mjs --scope project >/dev/null 2>&1)
 fi
 
 out="$(cd "$work" && claude "${args[@]}" </dev/null 2>/dev/null)"

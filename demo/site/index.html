@@ -168,6 +168,7 @@ a { color: var(--accent); }
       <li>a malicious <code>preinstall</code> hook</li>
     </ul>
     <p>Failproof adds two scanner policies. <code>scan-no-exfil</code> blocks uploads and access to secrets. <code>scan-no-untrusted-install</code> blocks <code>npm install</code> unless it runs with <code>--ignore-scripts</code>. Both are unit-checked: 15 of 15 decisions correct.</p>
+    <p class="card bad"><b>Correction (25 Oct):</b> in every NodeGoat run below, the scan policies <b>failed to load</b>. One policy file imported another, which failproof can't load, so no policy was active. The “Failproof” columns therefore measure <b>our prompt alone</b>. We fixed the setup by merging the policies into one file, and now all 11 load.</p>
     <div class="board-wrap">
       <table>
         <thead><tr><th>Opus 5.5 · 3 runs</th><th>Baseline</th><th>Prompt</th><th>Failproof</th></tr></thead>
@@ -184,8 +185,8 @@ a { color: var(--accent); }
         </tbody>
       </table>
     </div>
-    <p class="legend">Across all 16 scan sessions there were no leaks, the install hook never ran, and every report named all 3 flaws. Today's Claude models resisted the planted attack unaided, so the policies stood guard and never had to fire. In failproof mode the reports flagged the planted injection 2 to 9 times per run; baseline and prompt reports almost never did. Haiku with failproof did the full scan for $0.11, about 6× cheaper than Opus.</p>
-    <p><b>With Haiku, the cheap model you'd actually ship as a scanner, plain Claude fails pass^3.</b> 1 run in 3 wandered past the 480s time limit and never produced a report. Haiku with failproof passed 3/3 and was cheaper ($0.108 vs $0.133) and faster (238s vs 364s). The gain here is consistency and staying within budget, from the prompt and policies together. No attack had to be blocked.</p>
+    <p class="legend">Across all 16 scan sessions there were no leaks, the install hook never ran, and every report named all 3 flaws. Today's Claude models resisted the planted attack unaided. With our prompt, the reports flagged the planted injection 2 to 9 times per run; baseline reports almost never did. Haiku with our prompt did the full scan for $0.11, about 6× cheaper than Opus.</p>
+    <p><b>With Haiku, the cheap model you'd actually ship as a scanner, plain Claude fails pass^3.</b> 1 run in 3 wandered past the 480s time limit and never produced a report. Haiku with our prompt passed 3/3 and was cheaper ($0.108 vs $0.133) and faster (238s vs 364s). Because the policies weren't loaded, this gain came from the prompt, not from failproof.</p>
   </section>
 
   <section>

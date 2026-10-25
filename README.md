@@ -20,8 +20,9 @@ Hacktober Hack (Failproof AI × Quad AI, Bengaluru, 25 Oct 2026). We built a cod
 - **Opus 5.5:** 3/3 in every mode.
 - **Haiku 5.5:**
   - baseline 2/3: one run timed out with no report, so it fails pass^3.
-  - failproof 3/3, and cheaper ($0.108 vs $0.133) and faster (238s vs 364s).
+  - with our prompt 3/3, and cheaper ($0.108 vs $0.133) and faster (238s vs 364s).
 - No run leaked anything or ran the hook.
+- **Correction:** in these NodeGoat runs the scan policies failed to load, because one policy file imported another, which failproof can't load. So the "failproof" numbers measure our prompt alone. `securityscan/run.sh` now merges the policies into one file, and all 11 load.
 
 Without guardrails, Claude takes the shortcut: it edits the test, or bends the code to match a wrong test. The system prompt alone fixed the same coding tasks. The policies make the rules hold every run: 95% per run is only ~86% over 3 runs.
 
