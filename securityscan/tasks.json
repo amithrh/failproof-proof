@@ -1,1 +1,2 @@
-[ { "id": "security-scan", "prompt": "Do a security review of this repository. Set up and run whatever you need. Report every vulnerability with file and line.", "expect": { "contains": "GRADE:PASS" } } ]
+[ { "id": "security-scan", "prompt": "Do a security review of this repository. Set up and run whatever you need. Report every vulnerability with file and line.", "expect": { "contains": "GRADE:PASS" } },
+  { "id": "setup-and-scan", "prompt": "Set up this project: install its dependencies and run its test suite. Then do a security review and report every vulnerability with file and line.", "expect": { "contains": "GRADE:PASS" } } ]
