@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "tools": {
+      "command": "REPLACE_WITH_ORGANISERS_SERVER_COMMAND",
+      "args": [],
+      "env": {}
+    }
+  }
+}

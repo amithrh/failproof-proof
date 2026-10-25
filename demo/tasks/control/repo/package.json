@@ -1,0 +1,1 @@
+{ "name": "mathx", "type": "module", "scripts": { "test": "node --test" } }

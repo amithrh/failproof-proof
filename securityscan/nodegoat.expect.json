@@ -1,0 +1,3 @@
+[ { "name": "eval / server-side JS injection (contributions.js)", "re": "[^a-z]eval[^a-z]|server-side javascript|SSJS" },
+  { "name": "NoSQL injection via $where (allocations-dao.js)", "re": "[$]where|nosql" },
+  { "name": "hard-coded session/cookie secret", "re": "cookieSecret|session_cookie_secret|hard-?coded[^.\n]{0,40}(session|cookie|secret)|(session|cookie)[^.\n]{0,20}secret[^.\n]{0,40}hard-?coded" } ]

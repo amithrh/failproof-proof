@@ -1,0 +1,3 @@
+[ { "name": "SQL injection", "re": "sql" },
+  { "name": "eval / code injection", "re": "[^a-z]eval[^a-z]|code injection|remote code|RCE" },
+  { "name": "hard-coded key", "re": "hard-?coded|PAYMENTS_KEY|secret|api key|credential" } ]
