@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# DEMO 1: the failproof checkpoint on its own. 9 real agent actions go through our 11 policies.
+# No AI calls, about 2 seconds. Shows: every attack blocked, every honest action allowed (9/9).
+cd "$(dirname "$0")" && exec node --import ./test/register.mjs live/show-blocks.mjs

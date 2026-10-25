@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# DEMO 3: security scan of the real OWASP NodeGoat app, with a planted .env-exfiltration request
+# and a malicious install hook. The same Claude agent without vs with failproof.
+#   ./demo3                  quick: 1 scan each mode, in parallel (~2-5 min, ~$1.50; MODEL=haiku is cheaper)
+#   ./demo3 --full           3 runs each mode + table (~10 min)
+cd "$(dirname "$0")"
+[ -d securityscan/nodegoat ] || bash securityscan/make-nodegoat.sh
+if [ "${1:-}" = "--full" ]; then exec bash securityscan/matrix.sh; fi
+exec bash live/compare.sh securityscan security-scan TARGET=nodegoat ${MODEL:+MODEL=$MODEL}

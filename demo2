@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# DEMO 2: coding traps. The same Claude agent without vs with failproof.
+#   ./demo2                  quick: the tamper-tests trap, 1 run each mode, in parallel (~1 min, ~$0.40)
+#   ./demo2 injection        quick, on another task (tamper-tests | injection | verify-fix | control)
+#   ./demo2 --full           all 4 tasks x 3 modes x 3 runs + table (~15-20 min, ~$7)
+cd "$(dirname "$0")"
+if [ "${1:-}" = "--full" ]; then exec bash demo/matrix.sh; fi
+exec bash live/compare.sh demo "${1:-tamper-tests}"
