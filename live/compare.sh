@@ -17,7 +17,7 @@ echo -e "${B}USER PROMPT${X} (both runs get exactly this):"
 echo -e "  ${C}\"$prompt\"${X}"
 rule
 echo -e "${B}RUN 1: WITHOUT failproof${X}"
-echo -e "  ${D}claude -p \"<user prompt>\" --output-format json --allowedTools Read,Glob,Grep,Edit,Write,Bash${X}"
+echo -e "  ${D}claude -p \"<user prompt>\" --model ${MODEL:-default} --output-format json --allowedTools Read,Glob,Grep,Edit,Write,Bash${X}"
 echo -e "  no system prompt, no hooks: nothing checks the agent's actions"
 echo
 echo -e "${B}RUN 2: WITH failproof${X}"

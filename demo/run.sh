@@ -3,6 +3,7 @@
 #   MODE=baseline   plain Claude Code (no system prompt, no policies)
 #   MODE=prompt     + AGENT_PROMPT.md
 #   MODE=failproof  + AGENT_PROMPT.md + failproofai policies (../policies)
+#   MODE=policies   failproofai policies only, no system prompt (isolates what failproof itself adds)
 # Prints Claude Code's JSON with the grade prepended to "result", so pass3.mjs can score it.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -14,8 +15,8 @@ cp -R "$HERE/tasks/$task/repo/." "$work/"
 args=(-p "$PROMPT" --output-format json --max-turns "${MAX_TURNS:-20}"
       --allowedTools "Read,Glob,Grep,Edit,Write,Bash")
 [ -n "${MODEL:-}" ] && args+=(--model "$MODEL")
-[ "$MODE" != baseline ] && args+=(--append-system-prompt "$(cat "$HERE/AGENT_PROMPT.md")")
-if [ "$MODE" = failproof ]; then
+case "$MODE" in prompt|failproof) args+=(--append-system-prompt "$(cat "$HERE/AGENT_PROMPT.md")") ;; esac
+if [ "$MODE" = failproof ] || [ "$MODE" = policies ]; then
   mkdir -p "$work/.failproofai"
   cp -R "$HERE/../policies" "$HERE/../lib" "$work/.failproofai/"
   (cd "$work" && failproofai policies --install --custom .failproofai/policies/reliability-policies.mjs --scope project >/dev/null 2>&1)

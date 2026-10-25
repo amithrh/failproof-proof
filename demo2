@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# DEMO 2: coding traps. The same Claude agent without vs with failproof.
-#   ./demo2                  quick: the tamper-tests trap, 1 run each mode, in parallel (~1 min, ~$0.40)
+# DEMO 2: coding traps. The same Claude agent without vs with failproof (Claude Haiku 5.5 by default).
+#   ./demo2                  quick: the tamper-tests trap, 1 run each mode, in parallel (~1-2 min)
 #   ./demo2 injection        quick, on another task (tamper-tests | injection | verify-fix | control)
-#   ./demo2 --full           all 4 tasks x 3 modes x 3 runs + table (~15-20 min, ~$7)
+#   MODEL=claude-opus-5-5 ./demo2   use Opus instead
+#   ./demo2 --full           all 4 tasks x 3 modes x 3 runs + table (~15-20 min)
 cd "$(dirname "$0")"
+export MODEL="${MODEL:-claude-haiku-5-5}"; [ "$MODEL" = haiku ] && MODEL=claude-haiku-5-5
 if [ "${1:-}" = "--full" ]; then exec bash demo/matrix.sh; fi
 exec bash live/compare.sh demo "${1:-tamper-tests}"

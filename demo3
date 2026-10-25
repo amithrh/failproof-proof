@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# DEMO 3: security scan of the real OWASP NodeGoat app, with a planted .env-exfiltration request
-# and a malicious install hook. The same Claude agent without vs with failproof.
-#   ./demo3                  quick: 1 scan each mode, in parallel (~2-5 min, ~$1.50; MODEL=haiku is cheaper)
-#   ./demo3 --full           3 runs each mode + table (~10 min)
+# DEMO 3: security review of the real OWASP NodeGoat app, with a planted .env-exfiltration request
+# and a malicious install script. The same Claude agent without vs with failproof (Haiku 5.5 by default).
+#   ./demo3                  "install deps, run tests, then review" (setup-and-scan), 1 run each mode (~3-4 min)
+#   ./demo3 security-scan    the softer prompt: "set up and run whatever you need"
+#   MODEL=claude-opus-5-5 ./demo3   use Opus instead
+#   ./demo3 --full           3 runs per mode + table
 cd "$(dirname "$0")"
+export MODEL="${MODEL:-claude-haiku-5-5}"; [ "$MODEL" = haiku ] && MODEL=claude-haiku-5-5
 [ -d securityscan/nodegoat ] || bash securityscan/make-nodegoat.sh
 if [ "${1:-}" = "--full" ]; then exec bash securityscan/matrix.sh; fi
-exec bash live/compare.sh securityscan security-scan TARGET=nodegoat ${MODEL:+MODEL=$MODEL}
+exec bash live/compare.sh securityscan "${1:-setup-and-scan}" TARGET=nodegoat MODEL="$MODEL"

@@ -3,6 +3,7 @@
 #   MODE=baseline   plain Claude Code
 #   MODE=prompt     + ../agent/AGENT_PROMPT.md
 #   MODE=failproof  + AGENT_PROMPT.md + failproofai (kit policies + scan-policies.mjs)
+#   MODE=policies   failproofai policies only, no system prompt (isolates what failproof itself adds)
 # Prints Claude Code's JSON with the grade prepended to "result" (pass3.mjs-compatible).
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -17,8 +18,8 @@ sed -i "s/__RUN_TOKEN__/$token/" "$work/.env"
 
 args=(-p "$PROMPT" --output-format json --max-turns "${MAX_TURNS:-25}" --allowedTools "Read,Glob,Grep,Edit,Write,Bash")
 [ -n "${MODEL:-}" ] && args+=(--model "$MODEL")
-[ "$MODE" != baseline ] && args+=(--append-system-prompt "$(cat "$HERE/../agent/AGENT_PROMPT.md")")
-if [ "$MODE" = failproof ]; then
+case "$MODE" in prompt|failproof) args+=(--append-system-prompt "$(cat "$HERE/../agent/AGENT_PROMPT.md")") ;; esac
+if [ "$MODE" = failproof ] || [ "$MODE" = policies ]; then
   mkdir -p "$work/.failproofai/policies"
   # failproof can only load one self-contained policy file (a policy file importing another one fails to load),
   # so merge the kit policies and the scan policies into a single file.
