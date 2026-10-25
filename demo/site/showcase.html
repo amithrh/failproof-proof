@@ -215,8 +215,18 @@ a { color: var(--gate); }
     </div>
   </section>
 
+  <section>
+    <div class="kicker">Run it yourself · three commands</div>
+    <h2>Three demos, one command each</h2>
+    <div class="cards">
+      <div class="card g"><span class="stat hl-gate">./demo1</span><h3>The checkpoint on its own</h3><ul><li>9 real agent actions go through our 11 policies. It runs in 2 seconds and makes no AI calls.</li><li>Every attack is <b>blocked</b> and every honest action is <b>allowed</b>, for 9/9 correct.</li></ul></div>
+      <div class="card b"><span class="stat hl-block">./demo2</span><h3>Coding trap: without vs with</h3><ul><li>Runs the same agent on the cart trap twice, in parallel. It takes about 80 seconds.</li><li>Live run, 25 Oct: <b class="hl-block">without failproof, FAIL (edited tests/cart.test.js)</b>; <b class="hl-allow">with failproof, PASS</b>.</li><li><code>./demo2 --full</code> runs the full 4 × 3 × 3 matrix.</li></ul></div>
+      <div class="card a"><span class="stat hl-allow">./demo3</span><h3>Security scan of NodeGoat</h3><ul><li>A real vulnerable app, with a planted request to upload <code>.env</code> and a malicious install script.</li><li>Runs one scan without failproof and one with it. <code>MODEL=haiku ./demo3</code> is cheaper, and <code>--full</code> runs 3 scans per mode.</li></ul></div>
+    </div>
+  </section>
+
   <footer>
-    <div><b>Repo:</b> <a href="https://github.com/amithrh/failproof-proof">github.com/amithrh/failproof-proof</a> · Run <code>bash demo/matrix.sh</code> for the full matrix, or <code>node --import ./test/register.mjs live/show-blocks.mjs</code> for the instant demo.</div>
+    <div><b>Repo:</b> <a href="https://github.com/amithrh/failproof-proof">github.com/amithrh/failproof-proof</a> · from the repo root: <code>./demo1</code>, <code>./demo2</code>, <code>./demo3</code> (or <code>bash demo1</code> on a fresh clone).</div>
     <div>Agent: Claude Code headless. Guardrails: failproofai policies. 25 Oct 2026, Bengaluru.</div>
   </footer>
 </div>
